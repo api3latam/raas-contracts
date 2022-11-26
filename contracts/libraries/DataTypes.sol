@@ -26,6 +26,25 @@ library DataTypes {
     }
 
     /**
+     * @notice Structure to efficiently save IPFS hashes.
+     * @dev To reconstruct full hash insert `hash_function` and `size` before the
+     * the `hash` value. So you have `hash_function` + `size` + `hash`.
+     * This gives you a hexadecimal representation of the CIDs. You need to parse
+     * it to base58 from hex if you want to use it on a traditional IPFS gateway.
+     *
+     * @param hash - The hexadecimal representation of the CID payload from the hash.
+     * @param hash_funciont - The hexadecimal representation of multihash identifier.
+     * IPFS currently defaults to use `sha2` which equals to `0x12`.
+     * @param size - The hexadecimal representation of `hash` bytes size.
+     * Expecting value of `32` as default which equals to `0x20`. 
+     */
+    struct Multihash {
+        bytes32 hash
+        uint8 hash_function
+        uint8 size
+    }
+
+    /**
      * @notice Basic metadata for a raffle.
      * @dev The time parameters should be used as UNIX time stamp.
      *
@@ -35,7 +54,7 @@ library DataTypes {
      * @param endTime - The time at which the raffle should be closed.
      * @param winners - List of winners for the raffle.
      * @param entries - The list of participants for this raffle.
-     * @param metadataHash - The IPFS hash for this raffle.
+     * @param metadataHash - The IPFS hash struct for this raffle.
      * @param airnodeSuccess - If the QRNG called was successful.
      */
     struct IndividualRaffle {
@@ -45,7 +64,7 @@ library DataTypes {
         uint256 endTime;
         address[] winners;
         address[] entries;
-        string metadataHash;
+        Multihash metadataHash;
         bool airnodeSuccess;
     }
 
