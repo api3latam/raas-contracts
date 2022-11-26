@@ -33,7 +33,7 @@ library DataTypes {
      * it to base58 from hex if you want to use it on a traditional IPFS gateway.
      *
      * @param hash - The hexadecimal representation of the CID payload from the hash.
-     * @param hash_funciont - The hexadecimal representation of multihash identifier.
+     * @param hash_function - The hexadecimal representation of multihash identifier.
      * IPFS currently defaults to use `sha2` which equals to `0x12`.
      * @param size - The hexadecimal representation of `hash` bytes size.
      * Expecting value of `32` as default which equals to `0x20`. 
@@ -64,7 +64,6 @@ library DataTypes {
         uint256 endTime;
         address[] winners;
         address[] entries;
-        Multihash metadataHash;
         bool airnodeSuccess;
     }
 
