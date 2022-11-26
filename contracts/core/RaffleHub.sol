@@ -2,56 +2,44 @@
 
 pragma solidity ^0.8.15;
 
+import {DataTypes} from '../libraries/DataTypes.sol';
+
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
-/**
-* @dev This contract is based out from DecentRaffle which can be found here:
-* https://github.com/camronh/DecentRaffle/blob/master/hardhat/contracts/Raffle.sol
-*/
-
-contract Raffle is RrpRequesterV0, Ownable {
+contract RaffleHub is RrpRequesterV0, AccessControl {
 
     using Counters for Counters.Counter;
 
-    Counters.Counter private _ids;          // Individual Raffle identifier
-    address public airnode;                 // The address of the QRNG airnode
-    bytes32 public endpointIdUint256;       // The endpointId of the airnode to fetch a single random number
-    address public sponsorWallet;           // The address of the sponsorWallet that will be making the fullfillment transaction
+    bytes32 private constant RAFFLE_CREATOR = keccack256("RAFFLE_CREATOR");
 
-    /**
-     * @notice Basic metadata for a raffle
-     * @dev The time parameters should be used in UNIX time stamp
-     */
-    struct IndividualRaffle {
-        uint256 raffleId;
-        address winner;
-        address[] entries;
-        bool open;
-        uint256 startTime;
-        uint256 endTime;
-        bool airnodeSuccess;
-    }
+    Counters.Counter private _ids;      // Individual Raffle identifier
+    address public airnode;             // The address of the QRNG airnode
+    bytes32 public endpointIdUint256;   // The endpointId of the airnode to fetch a single random number
+    address private sponsorAddress;     // The address from sponsor of the sponsored wallet
+    address private sponsorWallet;      // The sponsored wallet address that will pay for fulfillments
 
-    // Mapping of Raffle id with its struct
-    mapping(uint256 => IndividualRaffle) public raffles;
-    // Mapping of raffles id in which an address is registered at
-    mapping(address => uint256[]) public accountEntries;
+    // Mapping of raffle id with its struct
+    mapping(uint256 => DataTypes.IndividualRaffle) public raffles;
+    // Mapping of metadata with raffle id
+    mapping(uint256 => DataTypes.Multihash) private raffleHashes;
     // Mapping that maps the requestId for a random number to the fullfillment status of that request
     mapping(bytes32 => bool) public pendingRequestIds;
     // Mapping that tracks the raffle id which made the request
     mapping(bytes32 => uint256) private requestIdToRaffleId;
 
-    event RaffleCreated(IndividualRaffle _raffleMetadata);
-    event WinnerPicked(uint256 indexed _raffleId, address raffleWinner);
-    event SetRequestParameters(address airnodeAddress, bytes32 targetEndpoint, address sponsorAddress);
-
     /**
      * @param _airnodeRrp Airnode address from the network where the contract is being deploy
      */
-    constructor(address _airnodeRrp)
-        RrpRequesterV0(_airnodeRrp) { }
+    constructor (
+        address _airnodeRrp
+    ) RrpRequesterV0(
+        _airnodeRrp
+    ) { 
+        _setRoleAdmin(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setRoleAdmin(RAFFLE_CREATOR, msg.sender);
+    }
 
     /** @notice Sets parameters used in requesting QRNG services.
      *  @dev This is a function modified from the original QRNG example.
@@ -59,7 +47,7 @@ contract Raffle is RrpRequesterV0, Ownable {
      *  @param _endpointIdUint256 Endpoint ID used to request a `uint256`.
      *  @param _sponsorWallet Sponsor wallet address.
      */
-    function setRequestParameters(
+    function setRequestParameters (
         address _airnode,
         bytes32 _endpointIdUint256,
         address _sponsorWallet
