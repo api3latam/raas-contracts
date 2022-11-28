@@ -62,7 +62,7 @@ contract RaffleHub is RrpRequesterV0, AccessControl {
      * @notice Creates a new raffle
      * @param _endTime Time the raffle ends
      */
-    function create(
+    function create (
         // address _owner
         uint256 _endTime
         // uint256 winners
