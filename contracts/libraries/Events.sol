@@ -4,6 +4,13 @@ pragma solidity ^0.8.15;
 
 import { DataTypes } from "./DataTypes.sol";
 
+/**
+ * @title Events
+ * @author API3 Latam
+ * 
+ * @notice A standard library of Events used across the API3 LATAM
+ * Raffle Platform.
+ */
 library Events {
     /**
      * @dev Emmited when a Raffle is created.
