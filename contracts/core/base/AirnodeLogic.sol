@@ -13,8 +13,6 @@ import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/
  *
  * @notice This is an abstract contract to be inherited by the modules
  * which are going to make use of an Airnode.
- * @dev You should implement yourself the logic for the endpoints callbacks.
- * and add them to the array `endpointIds`.
  */
 abstract contract AirnodeLogic is RrpRequesterV0 {
 
@@ -34,6 +32,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
 
     /** 
      * @notice Sets parameters used in requesting QRNG services.
+     * @dev Pending to add access control.
      *
      * @param _airnode - The Airnode address for the QRNG.
      * @param _sponsorAddress - The address from sponsor.
@@ -43,7 +42,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         address _airnode,
         address _sponsorAddress,
         address _sponsorWallet
-    ) external onlyOwner {
+    ) external {
         airnode = _airnode;
         sponsorAddress = _sponsorAddres;
         sponsorWallet = _sponsorWallet;
@@ -92,8 +91,10 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      */
     function addNewEndpoint (
         bytes32 _endpointId,
-        bytes4 _endpointSelector
+        string memory _endpointFunction
     ) external {
+        bytes4 _endpointSelector =  bytes4(keccak256(bytes(_endpointFunction)));
+
         DataTypes.Endpoint memory endpointToPush = DataTypes.Endpoint(
             _endpointId,
             _endpointSelector
@@ -104,7 +105,8 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         emit Events.SetAirnodeEndpoint(
             endpointsIds.length - 1,
             _endpointId,
-            _endpointSelector
+            _endpointSelector,
+            _endpointFunction
         );
     }
 }

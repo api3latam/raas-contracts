@@ -56,8 +56,9 @@ library Events {
      * @param _newEndpointSelector - The selector for the given endpoint of this addition.
      */
     event SetAirnodeEndpoint (
-        uint256 _index,
-        bytes32 _newEndpointId,
+        uint256 indexed _index,
+        bytes32 indexed _newEndpointId,
+        string _endpointFunction,
         bytes4 _newEndpointSelector
     );
 
