@@ -39,9 +39,22 @@ library DataTypes {
      * Expecting value of `32` as default which equals to `0x20`. 
      */
     struct Multihash {
-        bytes32 hash
-        uint8 hash_function
-        uint8 size
+        bytes32 hash;
+        uint8 hash_function;
+        uint8 size;
+    }
+
+    /**
+     * @notice Information for Airnode endpoints.
+     *
+     * @param endpointId - The unique identifier for the endpoint this
+     * callbacks points to.
+     * @param functionSelector - The function selector for this endpoint
+     * callback.
+     */
+    struct Endpoint {
+        bytes32 endpointId;
+        bytes4 functionSelector;
     }
 
     /**
@@ -54,8 +67,7 @@ library DataTypes {
      * @param endTime - The time at which the raffle should be closed.
      * @param winners - List of winners for the raffle.
      * @param entries - The list of participants for this raffle.
-     * @param metadataHash - The IPFS hash struct for this raffle.
-     * @param airnodeSuccess - If the QRNG called was successful.
+     * @param qrngSuccess - If the QRNG called was successful.
      */
     struct IndividualRaffle {
         uint256 raffleId;
@@ -64,7 +76,7 @@ library DataTypes {
         uint256 endTime;
         address[] winners;
         address[] entries;
-        bool airnodeSuccess;
+        bool qrngSuccess;
     }
 
 }
