@@ -16,12 +16,9 @@ library Events {
      * @dev Emitted when a Raffle is created.
      * 
      * @param _raffleId - The identifier for this specific raffle.
-     * @param _raffleMetadata - The actual metadata from the raffle
-     * being created.
      */
     event RaffleCreated (
-        uint256 indexed _raffleId,
-        DataTypes.IndividualRaffle _raffleMetadata
+        uint256 indexed _raffleId
     );
 
     /**
