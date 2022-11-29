@@ -55,8 +55,8 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
 
     /**
      * @notice Boilerplate to implement airnode calls.
-     * @dev This function should be overwritten to include further hooks
-     * for pre or post processing of airnode calls.
+     * @dev This function should be overwritten to include further
+     * pre or post processing of airnode calls.
      *
      * @param endpointIdIndex - The index from `endpointIds` array to get the
      * necessary parameters for the call.
@@ -68,19 +68,6 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     ) external virtual override returns (
         bytes32
     ) {}
-
-    /**
-     * @notice Boilerplate for airnode callbacks for fulfillment.
-     * @dev Same as `callAirnode`. This should be overwritten and is up
-     * to you for using any hook.
-     *
-     * @param requestId - The identifier for this request from the airnode queue.
-     * @param data - The response from the API associated with this airnode.
-     */
-    function airnodeCallback (
-        bytes32 requestId,
-        bytes calldata data
-    ) external virtual override onlyAirnodeRrp {}
 
     /**
      * @notice Function to push endpoints to the `endpointsIds` array.
