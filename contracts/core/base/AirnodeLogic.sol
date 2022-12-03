@@ -22,7 +22,14 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     
     DataTypes.Endpoint[] public endpointsIds; // The storage for endpoints data.
     
-    mapping(bytes32 => bool) public incomingFulfillments; // The list of ongoing fulfillments.
+    mapping(bytes32 => bool) private incomingFulfillments; // The list of ongoing fulfillments.
+
+    modifier validRequest(bytes32 _requestId) {
+        if (incomingFulfillments[_requestId] != true) {
+            revert Errors.RequestIdNotKnown();
+        }
+        _;
+    }
 
     constructor (
         address _airnodeRrp
@@ -56,7 +63,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     /**
      * @notice Boilerplate to implement airnode calls.
      * @dev This function should be overwritten to include further
-     * pre or post processing of airnode calls.
+     * pre or post processing of airnode calls with a hook.
      *
      * @param endpointIdIndex - The index from `endpointIds` array to get the
      * necessary parameters for the call.
@@ -65,7 +72,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     function callAirnode (
         uint256 endpointIdIndex,
         bytes calldata parameters
-    ) external virtual override returns (
+    ) internal virtual returns (
         bytes32
     ) {}
 
