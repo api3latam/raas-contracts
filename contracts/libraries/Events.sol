@@ -60,15 +60,13 @@ library Events {
     );
 
     /**
-     * @dev Should be emitted when a request is done.
+     * @dev Should be emitted when a request to WinnerAirnode is done.
      *
-     * @param requestId - The request id from which this event was emitted.
-     * @param endpointId - The endpoint from which this request was originated.
+     * @param requestId - The request id which this event is related to.
      * @param airnodeAddress - The airnode address from which this request was originated.
      */
-    event NewRequest (
+    event NewWinnerRequest (
         bytes32 indexed requestId,
-        bytes32 indexed endpointId,
         address indexed airnodeAddress
     );
 
