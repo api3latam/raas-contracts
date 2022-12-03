@@ -106,10 +106,7 @@ contract WinnerAirnode is AirnodeLogic {
     function getIndividualWinner (
         bytes32 requestId,
         bytes calldata data
-    ) external override onlyAirnodeRrp {
-        if (incomingFulfillments[requestId] != true) {
-            revert Errors.RequestIdNotKnown();
-        }
+    ) external virtual onlyAirnodeRrp validRequest(requestId) {
 
         uint256 qrngUint256 = abi.decode(data, (uint256));
 
@@ -118,5 +115,29 @@ contract WinnerAirnode is AirnodeLogic {
         uint256 winnerIndex = qrngUint256 % raffleData.totalEntries;
 
         requestToRaffle[requestId].winnerIndexes.push(winnerIndex);
+    }
+
+    /**
+     * @notice - Callback function when requesting multiple winners.
+     * @dev - We suggest to set this as endpointId index `2`.
+     *
+     * @param requestId - The id for this request.
+     * @param data - The response from the API send by the airnode. 
+     */
+    function getMultipleWinners (
+        bytes32 requestId,
+        bytes calldata data
+    ) external virtual onlyAirnodeRrp validRequest(requestId) {
+
+        DataTypes.WinnerReponse memory raffleData = requestToRaffle[requestId];
+
+        uint256[raffleData.totalWinners] qrngUint256Array = abi.decode(data, (uint256[]));
+        uint256[raffleData.totalWinners] winnersIndexArray;
+
+        for (uint256 i; i < qrngUint256Array.length; i++) {
+            winnersIndexArray[i] = qrngUint256Array[i] % raffleData.totalEntries;
+        }
+
+        requestToRaffle[requestId].winnerIndexes = winnersIndexArray;
     }
 }
