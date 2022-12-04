@@ -22,7 +22,7 @@ library Events {
     );
 
     /**
-     * @dev Emitted when a winner is picked trough the QRNG fulfillment.
+     * @dev Emitted when the winners are set from the QRNG provided data.
      *
      * @param _raffleId - The identifier for this specific raffle.
      * @param raffleWinners - The winner address list for this raffle.

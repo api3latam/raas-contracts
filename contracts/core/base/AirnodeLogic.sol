@@ -23,7 +23,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     DataTypes.Endpoint[] public endpointsIds; // The storage for endpoints data.
     
     mapping(bytes32 => bool) private incomingFulfillments; // The list of ongoing fulfillments.
-
+ 
     modifier validRequest(bytes32 _requestId) {
         if (incomingFulfillments[_requestId] != true) {
             revert Errors.RequestIdNotKnown();
@@ -102,5 +102,27 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
             _endpointSelector,
             _endpointFunction
         );
+    }
+
+    /**
+     * @notice - Basic hook for airnode callback functions.
+     * @dev - You should manually add them to the specific airnode defined
+     * callbacks, and we promote suggest further personalization trough
+     * overriding it for each specific need.
+     *
+     * @param _requestId - The id of the request for this fulfillment.
+     * @param _endpointId - The endpoint id from which this fulfillment was done.
+     * @param _airnodeAddress - The address from the airnode of this fulfillment.
+     */
+    function _afterFulfillment(
+        bytes32 _requestId,
+        bytes32 _endpointId,
+        address _airnodeAddress
+    ) internal virtual {
+        emit Events.SuccessfulRequest(
+            _requestId,
+            _endpointId,
+            _airnodeAddress
+        )
     }
 }
