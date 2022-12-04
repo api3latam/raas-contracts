@@ -81,7 +81,8 @@ contract WinnerAirnode is AirnodeLogic {
             parameters
         );
 
-        DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse(
+        DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse (
+            endpointIdIndex,
             winnerNumbers,
             participantNumbers,
             uint256[winnerNumbers]
@@ -115,6 +116,12 @@ contract WinnerAirnode is AirnodeLogic {
         uint256 winnerIndex = qrngUint256 % raffleData.totalEntries;
 
         requestToRaffle[requestId].winnerIndexes.push(winnerIndex);
+
+        _afterFulfillment(
+            requestId,
+            raffleData.endpointIndex,
+            airnode
+        );
     }
 
     /**
@@ -139,5 +146,11 @@ contract WinnerAirnode is AirnodeLogic {
         }
 
         requestToRaffle[requestId].winnerIndexes = winnersIndexArray;
+
+        _afterFulfillment(
+            requestId,
+            raffleData.endpointIndex,
+            airnode
+        );
     }
 }
