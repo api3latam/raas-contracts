@@ -21,6 +21,14 @@ interface IRaffle {
     function close () external;
 
     /**
+     * @notice Wrap ups a closed raffle.
+     * @dev Called by the `finisher` role.
+     * This function updates winner and any missing functionality
+     * for wrapping up the raffle.
+     */
+    function finish () external;
+
+    /**
      * @notice Get the participants from the raffle.
      */
     function getEntries () 
@@ -34,6 +42,6 @@ interface IRaffle {
     function getWinner ()
      external view returns (
         address[] memory
-     )
+    );
 
 }
