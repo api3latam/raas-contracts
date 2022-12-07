@@ -2,6 +2,13 @@
 
 pragma solidity ^0.8.15;
 
+/**
+ * @title IRaffle
+ * @author API3 Latam
+ *
+ * @notice This is the interface for the Raffle contract,
+ * which is initialized everytime a new raffle is requested.
+ */
 interface IRaffle {
 
     /**

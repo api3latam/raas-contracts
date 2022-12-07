@@ -22,7 +22,8 @@ library DataTypes {
     enum RaffleStatus {
         Unintialized,
         Open,
-        Close
+        Close,
+        Finish
     }
 
     /**
