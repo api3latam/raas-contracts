@@ -7,6 +7,7 @@ import { Events } from "../../../libraries/Events.sol";
 import { Errors } from "../../../libraries/Errors.sol";
 
 import { AirnodeLogic } from "../../base/AirnodeLogic.sol";
+import { IWinnerAirnode } from "../../../interfaces/IWinnerAirnode.sol";
 
 /**
  * @title WinnerAirnode
@@ -15,7 +16,7 @@ import { AirnodeLogic } from "../../base/AirnodeLogic.sol";
  * @notice This is the contract implementation to pick winners for raffles
  * using the QRNG oracle.
  */
-contract WinnerAirnode is AirnodeLogic {
+contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
 
     mapping(bytes32 => DataTypes.WinnerReponse) internal requestToRaffle; // Raffle airnode metadata for each request.
 
@@ -53,17 +54,13 @@ contract WinnerAirnode is AirnodeLogic {
     }
 
     /**
-     * @notice - The interface to request this airnode implementation call.
-     *
-     * @param endpointIdIndex - The target endpoint to use as callback.
-     * @param winnerNumbers - The number of winners to return
-     * @param participantNumbers - The number of participants from the raffle.
+     * @dev See { IWinnerAirnode-requestWinners }.
      */
     function requestWinners (
         uint256 endpointIdIndex,
         uint256 winnerNumbers,
         uint256 participantNumbers
-    ) external returns (
+    ) external override returns (
         bytes32
     ) {
         bytes memory parameters;
@@ -98,16 +95,12 @@ contract WinnerAirnode is AirnodeLogic {
     }
 
     /**
-     * @notice - Callback function when requesting one winner only.
-     * @dev - We suggest to set this as endpointId index `1`.
-     *
-     * @param requestId - The id for this request.
-     * @param data - The response from the API send by the airnode.
+     * @dev See { IWinnerAirnode-getIndividualWinner }.
      */
     function getIndividualWinner (
         bytes32 requestId,
         bytes calldata data
-    ) external virtual onlyAirnodeRrp validRequest(requestId) {
+    ) external virtual override onlyAirnodeRrp validRequest(requestId) {
 
         uint256 qrngUint256 = abi.decode(data, (uint256));
 
@@ -125,16 +118,12 @@ contract WinnerAirnode is AirnodeLogic {
     }
 
     /**
-     * @notice - Callback function when requesting multiple winners.
-     * @dev - We suggest to set this as endpointId index `2`.
-     *
-     * @param requestId - The id for this request.
-     * @param data - The response from the API send by the airnode. 
+     * @dev See { IWinnerAirnode-getMultipleWinners }.
      */
     function getMultipleWinners (
         bytes32 requestId,
         bytes calldata data
-    ) external virtual onlyAirnodeRrp validRequest(requestId) {
+    ) external virtual override onlyAirnodeRrp validRequest(requestId) {
 
         DataTypes.WinnerReponse memory raffleData = requestToRaffle[requestId];
 
