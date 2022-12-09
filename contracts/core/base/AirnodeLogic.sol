@@ -22,9 +22,19 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
     
     DataTypes.Endpoint[] public endpointsIds; // The storage for endpoints data.
     
+    mapping(bytes4 => uint256) public callbackToIndex;     // The mapping of functions to their index in the array.
     mapping(bytes32 => bool) private incomingFulfillments; // The list of ongoing fulfillments.
- 
-    modifier validRequest(bytes32 _requestId) {
+    
+    /**
+     * @notice Validates if the given requestId exists.
+     * @dev Is up to each requester how to deal with edge cases
+     * of missing requests.
+     *
+     * @param _requestId The requestId being used.
+     */
+    modifier validRequest (
+        bytes32 _requestId
+    ) {
         if (incomingFulfillments[_requestId] != true) {
             revert Errors.RequestIdNotKnown();
         }
@@ -65,12 +75,11 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      * @dev This function should be overwritten to include further
      * pre or post processing of airnode calls with a hook.
      *
-     * @param endpointIdIndex - The index from `endpointIds` array to get the
-     * necessary parameters for the call.
+     * @param _functionSelector - The target endpoint to use as callback.
      * @param parameters - The data for the API endpoint.
      */
     function callAirnode (
-        uint256 endpointIdIndex,
+        bytes4 _functionSelector,
         bytes calldata parameters
     ) internal virtual returns (
         bytes32
@@ -95,6 +104,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         );
 
         endpointsIds.push(endpointToPush);
+        callbackToIndex[_endpointSelector] = endpointsIds.length - 1;
 
         emit Events.SetAirnodeEndpoint(
             endpointsIds.length - 1,
@@ -102,6 +112,31 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
             _endpointSelector,
             _endpointFunction
         );
+    }
+
+    /**
+     * @notice Checks wether and endpoint exists and
+     * if it corresponds with the registered index.
+     *
+     * @param _selector The function selector to lock for.
+     */
+    function _beforeFullfilment (
+        bytes4 _selector
+    ) internal virtual returns (
+        DataTypes.Endpoint memory
+    ) {
+        uint256 endpointIdIndex = callbackToIndex[_selector];
+        DataTypes.Endpoint memory currentEndpoint = endpointIds[endpointIdIndex];
+
+        if (currentEndpoint.endpointId.length == 0) {
+            revert Errors.InvalidEndpointId();
+        }
+
+        if (currentEndpoint.functionSelector != _selector) {
+            revert Errors.IncorrectCallback();
+        }
+
+        return currentEndpoint;
     }
 
     /**
@@ -114,7 +149,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      * @param _endpointId - The endpoint id from which this fulfillment was done.
      * @param _airnodeAddress - The address from the airnode of this fulfillment.
      */
-    function _afterFulfillment(
+    function _afterFulfillment (
         bytes32 _requestId,
         bytes32 _endpointId,
         address _airnodeAddress
@@ -123,6 +158,6 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
             _requestId,
             _endpointId,
             _airnodeAddress
-        )
+        );
     }
 }
