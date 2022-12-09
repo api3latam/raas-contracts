@@ -21,10 +21,15 @@ library DataTypes {
      */
     enum RaffleStatus {
         Unintialized,
+        Canceled,
         Open,
         Close,
         Finish
     }
+
+    /**
+     * @notice An enum containing the 
+     */
 
     /**
      * @notice Structure to efficiently save IPFS hashes.

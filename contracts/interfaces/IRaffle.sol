@@ -24,8 +24,14 @@ interface IRaffle {
      * @dev Called by the owner when the raffle is over.
      * This function stops new entries from registering and will
      * call the `WinnerAirnode`.
+     *
+     * @param _winnerNumbers The number of winners to pick.
      */
-    function close () external;
+    function close (
+      uint256 _winnerNumbers  
+    ) external returns (
+        bytes32
+    );
 
     /**
      * @notice Wrap ups a closed raffle.
