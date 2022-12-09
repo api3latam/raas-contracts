@@ -11,8 +11,14 @@ pragma solidity ^0.8.15;
  */
 library Errors {
 
+    // Core Errors
+    error SameValueProvided();
+    error RaffleNotOpen(); // Raffle
+
     // Modules Airnodes
     error RequestIdNotKnown();
+    error InvalidEndpointId();
+    error IncorrectCallback();
     error InvalidWinnerNumber(); // WinnerAirnode
 
 }
