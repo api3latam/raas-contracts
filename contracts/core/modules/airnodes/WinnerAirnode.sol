@@ -18,7 +18,7 @@ import { IWinnerAirnode } from "../../../interfaces/IWinnerAirnode.sol";
  */
 contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
 
-    mapping(bytes32 => DataTypes.WinnerReponse) internal requestToRaffle; // Raffle airnode metadata for each request.
+    mapping(bytes32 => DataTypes.WinnerReponse) internal requestToRaffle;   // Raffle airnode metadata for each request.
 
     constructor (
         address _airnodeRrpAddress
@@ -27,18 +27,15 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) {}
 
     /**
-     * @notice Core logic for calling airnode rrp protocol.
-     *
-     * @param _endpointIdIndex - The target endpoint to use as callback.
-     * @param _parameters - The payload for the API from the airnode.
+     * @dev See { AirnodeLogic-callAirnode }.
      */
     function callAirnode (
-        uint256 _endpointIdIndex,
+        bytes4 _functionSelector,
         bytes calldata _parameters
     ) internal override returns (
         bytes32
     ) {
-        DataTypes.Endpoint memory currentEndpoint = endpointIds[endpointIdIndex];
+        _beforeFullfilment(_functionSelector);
 
         bytes32 _requestId = airnodeRrp.makeFullRequest(
             airnode,
@@ -57,7 +54,7 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
      * @dev See { IWinnerAirnode-requestWinners }.
      */
     function requestWinners (
-        uint256 endpointIdIndex,
+        bytes4 callbackSelector,
         uint256 winnerNumbers,
         uint256 participantNumbers
     ) external override returns (
@@ -65,16 +62,14 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) {
         bytes memory parameters;
 
-        if (winnerNumbers < 0) {
-            revert Errors.InvalidWinnerNumber();
-        } else if (winnerNumbers == 1) {
+        if (winnerNumbers == 1) {
             parameters = "";
         } else {
             parameters = abi.encode(bytes32("1u"), bytes32("size"), winnerNumbers);
         }
 
         bytes32 requestId = callAirnode (
-            endpointIdIndex,
+            callbackSelector,
             parameters
         );
 

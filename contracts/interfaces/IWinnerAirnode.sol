@@ -14,12 +14,12 @@ interface IWinnerAirnode {
     /**
      * @notice - The function to request this airnode implementation call.
      *
-     * @param endpointIdIndex - The target endpoint to use as callback.
+     * @param callbackSelector - The target endpoint to use as callback.
      * @param winnerNumbers - The number of winners to return
      * @param participantNumbers - The number of participants from the raffle.
      */
     function requestWinners (
-        uint256 endpointIdIndex,
+        bytes4 callbackSelector,
         uint256 winnerNumbers,
         uint256 participantNumbers
     ) external returns (
