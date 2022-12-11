@@ -3,6 +3,7 @@
 pragma solidity ^0.8.15;
 
 import { DataTypes } from "../libraries/DataTypes.sol";
+import { Events } from "../libraries/Events.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { IRaffle } from "../interfaces/IRaffle.sol";
 import { IWinnerAirnode } from "../interfaces/IWinnerAirnode.sol";
@@ -21,7 +22,9 @@ contract Raffle is IRaffle {
     using Counters for Counters.Counter;
 
     Counters.Counter private _participantId;    // The current index of the mapping.
+    uint256 immutable raffleId;                 // The id of this raffle contract.
     address public winnerRequester;             // The address of the requester being use.
+    bytes32 public requestId;                   // The id for this raffle airnode request.
     address public creator;                     // The address from the creator of the raffle.
     DataTypes.RaffleStatus public status;       // The status of the raffle.
 
@@ -38,10 +41,12 @@ contract Raffle is IRaffle {
 
     constructor (
         address _creator,
-        DataTypes.RaffleStatus _status
+        DataTypes.RaffleStatus _status,
+        uint256 _raffleId
     ) {
         creator = _creator;
         status = _status;
+        raffleId = _raffleId;
     }
 
     /**
@@ -75,9 +80,7 @@ contract Raffle is IRaffle {
     function close (
         uint256 _winnerNumbers
     )
-     external override isOpen returns (
-        bytes32
-    ) {
+     external override isOpen {
         IWinnerAirnode airnode = IWinnerAirnode(winnerRequester);
         bytes32 _requestId;
 
@@ -99,7 +102,32 @@ contract Raffle is IRaffle {
             );
         }
 
-        return _requestId;
+        status = DataTypes.RaffleStatus.Close;
+        requestId = _requestId;
     }
 
+    /**
+     * @dev See { IRaffle-finish }.
+     */
+    function finish () 
+     external override {
+        IWinnerAirnode airnode = IWinnerAirnode(winnerRequester);
+
+        if (status != DataTypes.RaffleStatus.Close) {
+            revert Errors.RaffleNotClose();
+        }
+
+        DataTypes.WinnerReponse memory winnerResults =  airnode.requestResults(requestId);
+
+        for (uint256 i; i < winnerResults.totalWinners; i++) {
+            winners.push(
+                participants[winnerResults.winnerIndexes[i]]
+            );
+        }
+
+        emit Events.WinnerPicked(
+            raffleId,
+            winners
+        );
+    }
 }
