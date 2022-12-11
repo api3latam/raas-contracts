@@ -15,6 +15,7 @@ import { IWinnerAirnode } from "../../../interfaces/IWinnerAirnode.sol";
  *
  * @notice This is the contract implementation to pick winners for raffles
  * using the QRNG oracle.
+ * @dev Pending access control for Raffle Role. To modify `requestToRaffle`.
  */
 contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
 
@@ -74,10 +75,10 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
         );
 
         DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse (
-            endpointIdIndex,
             winnerNumbers,
             participantNumbers,
-            uint256[winnerNumbers]
+            uint256[winnerNumbers],
+            false
         );
         requestToRaffle[requestId] = initResponse;
 
@@ -137,4 +138,24 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
             airnode
         );
     }
+
+    /**
+     * @dev See { IWinnerAirnode-requestResults }
+     */
+    function requestResults(
+        bytes32 requestId
+    ) external override returns (
+        DataTypes.WinnerReponse memory
+    ) {
+        DataTypes.WinnerReponse memory result = requestToRaffle[requestId];
+
+        if (result.isFinished) {
+            revert Errors.ResultRetrieved();
+        }
+
+        requestToRaffle[requestId].isFinished = true;
+        
+        return result;
+    }
+
 }
