@@ -29,9 +29,7 @@ interface IRaffle {
      */
     function close (
       uint256 _winnerNumbers  
-    ) external returns (
-        bytes32
-    );
+    ) external;
 
     /**
      * @notice Wrap ups a closed raffle.
@@ -40,21 +38,4 @@ interface IRaffle {
      * for wrapping up the raffle.
      */
     function finish () external;
-
-    /**
-     * @notice Get the participants from the raffle.
-     */
-    function getEntries () 
-     external view returns (
-        address[] memory
-    );
-
-    /**
-     * @notice Get the winner addresses.
-     */
-    function getWinner ()
-     external view returns (
-        address[] memory
-    );
-
 }
