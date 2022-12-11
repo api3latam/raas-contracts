@@ -13,12 +13,14 @@ library Errors {
 
     // Core Errors
     error SameValueProvided();
-    error RaffleNotOpen(); // Raffle
+    error RaffleNotOpen();      // Raffle
+    error RaffleNotClose();     // Raffle
 
     // Modules Airnodes
     error RequestIdNotKnown();
     error InvalidEndpointId();
     error IncorrectCallback();
-    error InvalidWinnerNumber(); // WinnerAirnode
+    error InvalidWinnerNumber();    // WinnerAirnode
+    error ResultRetrieved();        // WinnerAirnode
 
 }
