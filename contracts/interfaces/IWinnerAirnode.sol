@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.15;
 
+import { DataTypes } from "../libraries/DataTypes.sol";
+
 /**
  * @title IWinnerAirnode
  * @author API3 Latam
@@ -50,4 +52,14 @@ interface IWinnerAirnode {
         bytes calldata data
     ) external;
 
+    /**
+     * @notice Return the results from a given request.
+     *
+     * @param requestId The request to get results from.
+     */
+    function requestResults (
+        bytes32 requestId
+    ) external returns (
+        DataTypes.WinnerReponse memory
+    );
 }
