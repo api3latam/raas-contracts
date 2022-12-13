@@ -75,7 +75,6 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
         );
 
         DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse (
-            winnerNumbers,
             participantNumbers,
             uint256[winnerNumbers],
             false

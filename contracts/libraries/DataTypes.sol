@@ -90,13 +90,11 @@ library DataTypes {
      * @dev This should be consume by used in addition to IndividualRaffle struct
      * to return actual winner addresses.
      *
-     * @param totalWinners - The number of winners set for this raffle.
      * @param totalEntries - The number of participants for this raffle.
      * @param winnerIndexes - The indexes for the winners from raffle entries.
      * @param isFinished - Indicates wether the result has been retrieved or not.
      */
     struct WinnerReponse {
-        uint256 totalWinners;
         uint256 totalEntries;
         uint256[] winnerIndexes;
         bool isFinished;
