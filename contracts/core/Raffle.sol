@@ -23,6 +23,7 @@ contract Raffle is IRaffle {
 
     Counters.Counter private _participantId;    // The current index of the mapping.
     uint256 immutable raffleId;                 // The id of this raffle contract.
+    uint256 winnerNumber;                       // The number of winners for this raffle
     address public winnerRequester;             // The address of the requester being use.
     bytes32 public requestId;                   // The id for this raffle airnode request.
     address public creator;                     // The address from the creator of the raffle.
@@ -54,7 +55,7 @@ contract Raffle is IRaffle {
      *
      * @param _requester The address of the requester contract.
      */
-    function setRequester(
+    function setRequester (
         address _requester
     ) external {
         if (winnerRequester != _requester) {
@@ -77,27 +78,21 @@ contract Raffle is IRaffle {
     /**
      * @dev See { IRaffle-close }.
      */
-    function close (
-        uint256 _winnerNumbers
-    )
+    function close ()
      external override isOpen {
         IWinnerAirnode airnode = IWinnerAirnode(winnerRequester);
-        bytes32 _requestId;
-
-        if (_winnerNumbers < 0) {
-            revert Errors.InvalidWinnerNumber();
-        } 
+        bytes32 _requestId; 
         
-        if (_winnerNumbers == 1) {
+        if (winnerNumber == 1) {
             _requestId = airnode.requestWinners (
                 airnode.getIndividualWinner.selector, 
-                _winnerNumbers, 
+                winnerNumber, 
                 _participantId.current()
             );
         } else {
             _requestId = airnode.requestWinners (
                 airnode.getMultipleWinners.selector, 
-                _winnerNumbers, 
+                winnerNumber, 
                 _participantId.current()
             );
         }
@@ -119,7 +114,7 @@ contract Raffle is IRaffle {
 
         DataTypes.WinnerReponse memory winnerResults =  airnode.requestResults(requestId);
 
-        for (uint256 i; i < winnerResults.totalWinners; i++) {
+        for (uint256 i; i < winnerNumber; i++) {
             winners.push(
                 participants[winnerResults.winnerIndexes[i]]
             );
@@ -129,5 +124,18 @@ contract Raffle is IRaffle {
             raffleId,
             winners
         );
+    }
+
+    /**
+     * @dev See { IRaffle-updateWinners }.
+     */
+    function updateWinners(
+        uint256 _winnerNumbers
+    ) external isOpen {
+        if (_winnerNumbers <= 0) {
+            revert Errors.InvalidWinnerNumber();
+        }
+
+        winnerNumber = _winnerNumbers;
     }
 }
