@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.15;
 
@@ -9,6 +9,7 @@ import { IRaffle } from "../interfaces/IRaffle.sol";
 import { IWinnerAirnode } from "../interfaces/IWinnerAirnode.sol";
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Raffle
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * @notice This is the implementation of the Raffle contract.
  * Including the logic to operate an individual Raffle.
  */
-contract Raffle is IRaffle {
+contract Raffle is IRaffle, Initializable {
 
     using Counters for Counters.Counter;
 
@@ -29,7 +30,7 @@ contract Raffle is IRaffle {
     address public creator;                     // The address from the creator of the raffle.
     DataTypes.RaffleStatus public status;       // The status of the raffle.
 
-    address[] public winners;                   // Winner addresses for this raffle
+    address[] public winners;                   // Winner addresses for this raffle.
 
     mapping(uint256 => address) public participants; // Id to participants mapping.
 
@@ -40,11 +41,26 @@ contract Raffle is IRaffle {
         _;
     }
 
-    constructor (
+    /**
+     * @notice Initializer function for factory pattern.
+     * @dev This replaces the constructor so we can apply do the 'cloning'.
+     *
+     * @param _creator - The raffle creator.
+     * @param _status - Initial status for the raffle.
+     * @param _raffleId - The id for this raffle.
+     */
+    function initialize (
         address _creator,
         DataTypes.RaffleStatus _status,
         uint256 _raffleId
-    ) {
+    ) external initializer {
+        require(
+            !_initialized,
+            "Raffle: Contract has been initialized!"
+        );
+
+        _initialized = true;
+
         creator = _creator;
         status = _status;
         raffleId = _raffleId;
@@ -129,7 +145,7 @@ contract Raffle is IRaffle {
     /**
      * @dev See { IRaffle-updateWinners }.
      */
-    function updateWinners(
+    function updateWinners (
         uint256 _winnerNumbers
     ) external isOpen {
         if (_winnerNumbers <= 0) {
