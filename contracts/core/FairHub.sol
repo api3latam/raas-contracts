@@ -48,8 +48,8 @@ contract FairHub is FairHubStorage {
             metadata
         )
 
-        BeaconProxy _raffle = BeaconProxy(
-            raffleBeacon,
+        BeaconProxy _raffle = new BeaconProxy(
+            address(raffleBeacon),
             _data
         );
 
