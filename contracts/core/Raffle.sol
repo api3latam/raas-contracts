@@ -10,6 +10,7 @@ import { IWinnerAirnode } from "../interfaces/IWinnerAirnode.sol";
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  * @title Raffle
@@ -18,13 +19,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @notice This is the implementation of the Raffle contract.
  * Including the logic to operate an individual Raffle.
  */
-contract Raffle is IRaffle, Initializable {
+contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
 
     using Counters for Counters.Counter;
 
     Counters.Counter private _participantId;    // The current index of the mapping.
     uint256 immutable raffleId;                 // The id of this raffle contract.
-    address immutable creator;                  // The address from the creator of the raffle.
+    address immutable creatorAddress;           // The address from the creator of the raffle.
     uint256 public winnerNumber;                // The number of winners for this raffle.
     uint256 immutable startTime;                // The starting time for the raffle.
     uint256 immutable endTime;                  // The end time for the raffle.
@@ -53,11 +54,15 @@ contract Raffle is IRaffle, Initializable {
         _;
     }
 
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @notice Initializer function for factory pattern.
      * @dev This replaces the constructor so we can apply do the 'cloning'.
      *
-     * @param _creator The raffle creator.
+     * @param _creatorAddress The raffle creator.
      * @param _status Initial status for the raffle.
      * @param _raffleId The id for this raffle.
      * @param _startTime The starting time for the raffle.
@@ -66,7 +71,7 @@ contract Raffle is IRaffle, Initializable {
      * @param _metadata The `Multihash` information for this raffle metadata.
      */
     function initialize (
-        address _creator,
+        address _creatorAddress,
         DataTypes.RaffleStatus _status,
         uint256 _raffleId,
         uint256 _startTime,
@@ -79,7 +84,7 @@ contract Raffle is IRaffle, Initializable {
             revert Errors.AlreadyInitialized();
         }
 
-        creator = _creator;
+        creatorAddress = _creatorAddress;
 
         if (!(_status == DataTypes.RaffleStatus.Unintialized ||
                 _status == DataTypes.Rafflestatus.Open)) {
@@ -113,6 +118,10 @@ contract Raffle is IRaffle, Initializable {
 
         metadata = _metadata;
 
+        __Ownable_init();
+
+        _transferOwnership(_creatorAddress);
+
         _initialized = true;
     }
 
@@ -123,7 +132,7 @@ contract Raffle is IRaffle, Initializable {
      */
     function setRequester (
         address _requester
-    ) external isAvailable {
+    ) external onlyOwner isAvailable {
         if (winnerRequester == _requester) {
             revert Errors.SameValueProvided();
         }
@@ -145,7 +154,7 @@ contract Raffle is IRaffle, Initializable {
      * @dev See { IRaffle-close }.
      */
     function close ()
-     external override isOpen {
+     external override onlyOwner isOpen {
         IWinnerAirnode airnode = IWinnerAirnode(winnerRequester);
         bytes32 _requestId; 
         
@@ -171,7 +180,7 @@ contract Raffle is IRaffle, Initializable {
      * @dev See { IRaffle-finish }.
      */
     function finish () 
-     external override {
+     external override onlyOwner {
         IWinnerAirnode airnode = IWinnerAirnode(winnerRequester);
 
         if (status != DataTypes.RaffleStatus.Close) {
@@ -207,7 +216,7 @@ contract Raffle is IRaffle, Initializable {
      */
     function updateWinners (
         uint256 _winnerNumbers
-    ) external override isAvailable {
+    ) external override onlyOwner isAvailable {
         if (_winnerNumbers <= 0) {
             revert Errors.InvalidWinnerNumber();
         }
@@ -220,7 +229,14 @@ contract Raffle is IRaffle, Initializable {
      */
     function updateMetadata (
         DataTypes.Multihash _metadata
-    ) external override isAvailable {
+    ) external override onlyOwner isAvailable {
         metadata = _metadata;
     }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[49] private __gap;
 }
