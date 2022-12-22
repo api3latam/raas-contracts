@@ -29,11 +29,14 @@ interface IRaffle {
 
     /**
      * @notice Wrap ups a closed raffle.
-     * @dev Called by the `finisher` role.
-     * This function updates winner and any missing functionality
-     * for wrapping up the raffle.
+     * @dev This function updates the winners as result from calling the airnode.
      */
     function finish () external;
+
+    /**
+     * @notice Cancel an available raffle.
+     */
+    function cancel () external;
 
     /**
      * @notice Update the set number of winners.
@@ -42,5 +45,14 @@ interface IRaffle {
      */
     function updateWinners(
       uint256 _winnerNumbers
+    ) external;
+
+    /**
+     * @notice Update the metadata for the raffle.
+     *
+     * @param _metadata The new metadata struct.
+     */
+    function updateMetadata(
+      DataTypes.Multihash _metadata
     ) external;
 }
