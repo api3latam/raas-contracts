@@ -13,10 +13,15 @@ library Errors {
 
     // Core Errors
     error SameValueProvided();
-    error RaffleNotOpen();      // Raffle
-    error RaffleNotClose();     // Raffle
+    error AlreadyInitialized();
+    error WrongInitializationParams(string errorMessage);
 
-    // Modules Airnodes
+    // Raffle Errors
+    error RaffleNotOpen();
+    error RaffleNotAvailable();
+    error RaffleNotClose();
+
+    // Airnode Module
     error RequestIdNotKnown();
     error InvalidEndpointId();
     error IncorrectCallback();
