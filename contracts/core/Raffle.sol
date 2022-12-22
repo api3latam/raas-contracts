@@ -24,11 +24,15 @@ contract Raffle is IRaffle, Initializable {
 
     Counters.Counter private _participantId;    // The current index of the mapping.
     uint256 immutable raffleId;                 // The id of this raffle contract.
-    uint256 winnerNumber;                       // The number of winners for this raffle
+    address immutable creator;                  // The address from the creator of the raffle.
+    uint256 public winnerNumber;                // The number of winners for this raffle.
+    uint256 immutable startTime;                // The starting time for the raffle.
+    uint256 immutable endTime;                  // The end time for the raffle.
+    DataTypes.RaffleStatus public status;       // The status of the raffle.
+    DataTypes.Multihash public metadata;        // The metadata information for this raffle.
+    
     address public winnerRequester;             // The address of the requester being use.
     bytes32 public requestId;                   // The id for this raffle airnode request.
-    address public creator;                     // The address from the creator of the raffle.
-    DataTypes.RaffleStatus public status;       // The status of the raffle.
 
     address[] public winners;                   // Winner addresses for this raffle.
 
@@ -41,29 +45,75 @@ contract Raffle is IRaffle, Initializable {
         _;
     }
 
+    modifier isAvailable() {
+        if (!(status == DataTypes.RaffleStatus.Unintialized ||
+                status == DataTypes.Rafflestatus.Open)) {
+            revert Errors.RaffleNotAvailable();
+        }
+        _;
+    }
+
     /**
      * @notice Initializer function for factory pattern.
      * @dev This replaces the constructor so we can apply do the 'cloning'.
      *
-     * @param _creator - The raffle creator.
-     * @param _status - Initial status for the raffle.
-     * @param _raffleId - The id for this raffle.
+     * @param _creator The raffle creator.
+     * @param _status Initial status for the raffle.
+     * @param _raffleId The id for this raffle.
+     * @param _startTime The starting time for the raffle.
+     * @param _endTime The end time for the raffle.
+     * @param _winnerNumber The initial number to set as total winners.
+     * @param _metadata The `Multihash` information for this raffle metadata.
      */
     function initialize (
         address _creator,
         DataTypes.RaffleStatus _status,
-        uint256 _raffleId
+        uint256 _raffleId,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256 _winnerNumber,
+        DataTypes.Multihash memory _metadata
     ) external initializer {
-        require(
-            !_initialized,
-            "Raffle: Contract has been initialized!"
-        );
-
-        _initialized = true;
+        
+        if (_initialized) {
+            revert Errors.AlreadyInitialized();
+        }
 
         creator = _creator;
+
+        if (!(_status == DataTypes.RaffleStatus.Unintialized ||
+                _status == DataTypes.Rafflestatus.Open)) {
+            revert Errors.WrongInitializationParams(
+                "Raffle: Invalid `status` parameter."
+            );
+        }
         status = _status;
         raffleId = _raffleId;
+
+        if (_startTime < block.timestamp) {
+            revert Errors.WrongInitializationParams(
+                "Raffle: Invalid `startTime` parameter."
+            )
+        }
+        startTime = _startTime;
+
+        if (_endTime > _startTime) {
+            revert Errors.WrongInitializationParams(
+                "Raffle: Invalid `endTime` parameter."
+            )
+        }
+        endTime = _endTime;
+
+        if (_winnerNumber <= 0) {
+            revert Errors.WrongInitializationParams(
+                "Raffle: Invalid `winnerNumber` parameter."
+            )
+        }
+        winnerNumber = _winnerNumber;
+
+        metadata = _metadata;
+
+        _initialized = true;
     }
 
     /**
@@ -73,12 +123,12 @@ contract Raffle is IRaffle, Initializable {
      */
     function setRequester (
         address _requester
-    ) external {
-        if (winnerRequester != _requester) {
-            winnerRequester = _requester;
-        } else {
+    ) external isAvailable {
+        if (winnerRequester == _requester) {
             revert Errors.SameValueProvided();
         }
+
+        winnerRequester = _requester;
     }
 
     /**
@@ -113,8 +163,8 @@ contract Raffle is IRaffle, Initializable {
             );
         }
 
-        status = DataTypes.RaffleStatus.Close;
         requestId = _requestId;
+        status = DataTypes.RaffleStatus.Close;
     }
 
     /**
@@ -136,6 +186,8 @@ contract Raffle is IRaffle, Initializable {
             );
         }
 
+        status = DataTypes.RaffleStatus.Finish;
+
         emit Events.WinnerPicked(
             raffleId,
             winners
@@ -143,15 +195,32 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /**
+     * @dev See { IRaffle-cancel }.
+     */
+    function cancel () 
+     external override isAvailable {
+        status = DataTypes.RaffleStatus.Canceled;
+    } 
+
+    /**
      * @dev See { IRaffle-updateWinners }.
      */
     function updateWinners (
         uint256 _winnerNumbers
-    ) external isOpen {
+    ) external override isAvailable {
         if (_winnerNumbers <= 0) {
             revert Errors.InvalidWinnerNumber();
         }
 
         winnerNumber = _winnerNumbers;
+    }
+
+    /**
+     * @dev See { IRaffle-updateMetadata }
+     */
+    function updateMetadata (
+        DataTypes.Multihash _metadata
+    ) external override isAvailable {
+        metadata = _metadata;
     }
 }
