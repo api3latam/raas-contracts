@@ -18,8 +18,8 @@ contract FairHub is FairHubStorage {
 
     constructor (
         address _beaconContract
-    ) { 
-        raffleBeacon = _beaconContract;
+    ) {
+        raffleBeacon = RaffleBeacon(_beaconContract);
     }
 
     /**
@@ -32,10 +32,10 @@ contract FairHub is FairHubStorage {
         uint256 startTime,
         uint256 endTime,
         uint256 winnerNumber,
-        DataTyoes.Multihash memory metadata
+        DataTypes.Multihash memory metadata
     ) external {
-        _raffleId.increment();
-        uint256 _id = _raffleId.current();
+        _raffleCounter.increment();
+        uint256 _id = _raffleCounter.current();
 
         bytes memory _data = abi.encodeWithSelector(
             Raffle.initialize.selector,
@@ -46,7 +46,7 @@ contract FairHub is FairHubStorage {
             endTime,
             winnerNumber,
             metadata
-        )
+        );
 
         BeaconProxy _raffle = new BeaconProxy(
             address(raffleBeacon),
@@ -55,7 +55,7 @@ contract FairHub is FairHubStorage {
 
         raffles[_id] = address(_raffle);
 
-        emit events.RaffleCreated(_id);
+        emit Events.RaffleCreated(_id);
     }
 
 }

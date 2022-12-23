@@ -36,7 +36,9 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) internal override returns (
         bytes32
     ) {
-        _beforeFullfilment(_functionSelector);
+        DataTypes.Endpoint memory currentEndpoint = _beforeFullfilment(
+            _functionSelector
+        );
 
         bytes32 _requestId = airnodeRrp.makeFullRequest(
             airnode,
@@ -61,7 +63,7 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) external override returns (
         bytes32
     ) {
-        bytes memory parameters;
+        bytes calldata parameters;
 
         if (winnerNumbers == 1) {
             parameters = "";
@@ -74,9 +76,10 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
             parameters
         );
 
-        DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse (
+        DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse(
             participantNumbers,
-            uint256[winnerNumbers],
+            winnerNumbers,
+            uint256[],
             false
         );
         requestToRaffle[requestId] = initResponse;
@@ -107,7 +110,6 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
 
         _afterFulfillment(
             requestId,
-            raffleData.endpointIndex,
             airnode
         );
     }
@@ -121,11 +123,11 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) external virtual override onlyAirnodeRrp validRequest(requestId) {
 
         DataTypes.WinnerReponse memory raffleData = requestToRaffle[requestId];
+        
+        uint256[] memory qrngUint256Array = abi.decode(data, (uint256[]));
+        uint256[] memory winnersIndexArray;
 
-        uint256[raffleData.totalWinners] qrngUint256Array = abi.decode(data, (uint256[]));
-        uint256[raffleData.totalWinners] winnersIndexArray;
-
-        for (uint256 i; i < qrngUint256Array.length; i++) {
+        for (uint256 i; i < raffleData.totalWinners; i++) {
             winnersIndexArray[i] = qrngUint256Array[i] % raffleData.totalEntries;
         }
 

@@ -75,12 +75,10 @@ library Events {
      * a request is successful for flow control.
      *
      * @param requestId - The request id from which this event was emitted.
-     * @param endpointId - The endpoint from which this request was originated.
      * @param airnodeAddress - The airnode address from which this request was originated.
      */
     event SuccessfulRequest (
         bytes32 indexed requestId,
-        bytes32 indexed endpointId,
         address indexed airnodeAddress
     );
 }

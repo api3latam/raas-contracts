@@ -4,9 +4,9 @@ pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-abstract contract RaffleHubStorage {
+abstract contract FairHubStorage {
 
-    Counters.Counter private _ids;       // Individual Raffle identifier
+    Counters.Counter internal _raffleCounter;       // Individual Raffle identifier
 
     // Mapping of raffle id with its contract
     mapping(uint256 => address) public raffles;

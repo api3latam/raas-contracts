@@ -69,11 +69,13 @@ library DataTypes {
      * to return actual winner addresses.
      *
      * @param totalEntries - The number of participants for this raffle.
+     * @param totalWinners - The number of winners finally set for this raffle.
      * @param winnerIndexes - The indexes for the winners from raffle entries.
      * @param isFinished - Indicates wether the result has been retrieved or not.
      */
     struct WinnerReponse {
         uint256 totalEntries;
+        uint256 totalWinners;
         uint256[] winnerIndexes;
         bool isFinished;
     }

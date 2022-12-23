@@ -1,6 +1,8 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.15;
+
+import { DataTypes } from '../libraries/DataTypes.sol';
 
 /**
  * @title IRaffle
@@ -53,6 +55,6 @@ interface IRaffle {
      * @param _metadata The new metadata struct.
      */
     function updateMetadata(
-      DataTypes.Multihash _metadata
+      DataTypes.Multihash memory _metadata
     ) external;
 }

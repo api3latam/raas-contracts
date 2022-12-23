@@ -23,6 +23,8 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
 
     using Counters for Counters.Counter;
 
+    bool private _initialized;                  // Boolean to check if contract is initialized.
+
     Counters.Counter private _participantId;    // The current index of the mapping.
     uint256 immutable raffleId;                 // The id of this raffle contract.
     address immutable creatorAddress;           // The address from the creator of the raffle.
@@ -48,7 +50,7 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
 
     modifier isAvailable() {
         if (!(status == DataTypes.RaffleStatus.Unintialized ||
-                status == DataTypes.Rafflestatus.Open)) {
+                status == DataTypes.RaffleStatus.Open)) {
             revert Errors.RaffleNotAvailable();
         }
         _;
@@ -87,7 +89,7 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
         creatorAddress = _creatorAddress;
 
         if (!(_status == DataTypes.RaffleStatus.Unintialized ||
-                _status == DataTypes.Rafflestatus.Open)) {
+                _status == DataTypes.RaffleStatus.Open)) {
             revert Errors.WrongInitializationParams(
                 "Raffle: Invalid `status` parameter."
             );
@@ -98,21 +100,21 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
         if (_startTime < block.timestamp) {
             revert Errors.WrongInitializationParams(
                 "Raffle: Invalid `startTime` parameter."
-            )
+            );
         }
         startTime = _startTime;
 
         if (_endTime > _startTime) {
             revert Errors.WrongInitializationParams(
                 "Raffle: Invalid `endTime` parameter."
-            )
+            );
         }
         endTime = _endTime;
 
         if (_winnerNumber <= 0) {
             revert Errors.WrongInitializationParams(
                 "Raffle: Invalid `winnerNumber` parameter."
-            )
+            );
         }
         winnerNumber = _winnerNumber;
 
@@ -228,7 +230,7 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
      * @dev See { IRaffle-updateMetadata }
      */
     function updateMetadata (
-        DataTypes.Multihash _metadata
+        DataTypes.Multihash memory _metadata
     ) external override onlyOwner isAvailable {
         metadata = _metadata;
     }

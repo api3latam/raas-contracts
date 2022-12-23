@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 
 import { DataTypes } from "../../libraries/DataTypes.sol";
 import { Events } from "../../libraries/Events.sol";
+import { Errors } from "../../libraries/Errors.sol";
 
 import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
@@ -16,14 +17,14 @@ import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/
  */
 abstract contract AirnodeLogic is RrpRequesterV0 {
 
-    address public airnode;             // The address of the QRNG airnode.
-    address private sponsorAddress;     // The address from sponsor of the sponsored wallet.
-    address private sponsorWallet;      // The sponsored wallet address that will pay for fulfillments.
+    address public airnode;              // The address of the QRNG airnode.
+    address internal sponsorAddress;     // The address from sponsor of the sponsored wallet.
+    address internal sponsorWallet;      // The sponsored wallet address that will pay for fulfillments.
     
     DataTypes.Endpoint[] public endpointsIds; // The storage for endpoints data.
     
-    mapping(bytes4 => uint256) public callbackToIndex;     // The mapping of functions to their index in the array.
-    mapping(bytes32 => bool) private incomingFulfillments; // The list of ongoing fulfillments.
+    mapping(bytes4 => uint256) public callbackToIndex;      // The mapping of functions to their index in the array.
+    mapping(bytes32 => bool) internal incomingFulfillments; // The list of ongoing fulfillments.
     
     /**
      * @notice Validates if the given requestId exists.
@@ -61,11 +62,11 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         address _sponsorWallet
     ) external {
         airnode = _airnode;
-        sponsorAddress = _sponsorAddres;
+        sponsorAddress = _sponsorAddress;
         sponsorWallet = _sponsorWallet;
         emit Events.SetRequestParameters(
             _airnode,
-            _sponsorAddres,
+            _sponsorAddress,
             _sponsorWallet
         );
     }
@@ -109,8 +110,8 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         emit Events.SetAirnodeEndpoint(
             endpointsIds.length - 1,
             _endpointId,
-            _endpointSelector,
-            _endpointFunction
+            _endpointFunction,
+            _endpointSelector
         );
     }
 
@@ -118,7 +119,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      * @notice Checks wether and endpoint exists and
      * if it corresponds with the registered index.
      *
-     * @param _selector The function selector to lock for.
+     * @param _selector The function selector to look for.
      */
     function _beforeFullfilment (
         bytes4 _selector
@@ -126,17 +127,17 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
         DataTypes.Endpoint memory
     ) {
         uint256 endpointIdIndex = callbackToIndex[_selector];
-        DataTypes.Endpoint memory currentEndpoint = endpointIds[endpointIdIndex];
+        DataTypes.Endpoint memory _currentEndpoint = endpointsIds[endpointIdIndex];
 
-        if (currentEndpoint.endpointId.length == 0) {
+        if (_currentEndpoint.endpointId.length == 0) {
             revert Errors.InvalidEndpointId();
         }
 
-        if (currentEndpoint.functionSelector != _selector) {
+        if (_currentEndpoint.functionSelector != _selector) {
             revert Errors.IncorrectCallback();
         }
 
-        return currentEndpoint;
+        return _currentEndpoint;
     }
 
     /**
@@ -146,17 +147,14 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      * overriding it for each specific need.
      *
      * @param _requestId - The id of the request for this fulfillment.
-     * @param _endpointId - The endpoint id from which this fulfillment was done.
      * @param _airnodeAddress - The address from the airnode of this fulfillment.
      */
     function _afterFulfillment (
         bytes32 _requestId,
-        bytes32 _endpointId,
         address _airnodeAddress
     ) internal virtual {
         emit Events.SuccessfulRequest(
             _requestId,
-            _endpointId,
             _airnodeAddress
         );
     }
