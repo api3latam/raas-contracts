@@ -26,11 +26,11 @@ contract Raffle is IRaffle, Initializable, OwnableUpgradeable {
     bool private _initialized;                  // Boolean to check if contract is initialized.
 
     Counters.Counter private _participantId;    // The current index of the mapping.
-    uint256 immutable raffleId;                 // The id of this raffle contract.
-    address immutable creatorAddress;           // The address from the creator of the raffle.
+    uint256 raffleId;                           // The id of this raffle contract.
+    address creatorAddress;                     // The address from the creator of the raffle.
     uint256 public winnerNumber;                // The number of winners for this raffle.
-    uint256 immutable startTime;                // The starting time for the raffle.
-    uint256 immutable endTime;                  // The end time for the raffle.
+    uint256 startTime;                          // The starting time for the raffle.
+    uint256 endTime;                            // The end time for the raffle.
     DataTypes.RaffleStatus public status;       // The status of the raffle.
     DataTypes.Multihash public metadata;        // The metadata information for this raffle.
     

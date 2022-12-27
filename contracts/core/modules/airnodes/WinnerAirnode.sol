@@ -32,7 +32,7 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
      */
     function callAirnode (
         bytes4 _functionSelector,
-        bytes calldata _parameters
+        bytes memory _parameters
     ) internal override returns (
         bytes32
     ) {
@@ -51,6 +51,8 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
         );
 
         incomingFulfillments[_requestId] = true;
+
+        return _requestId;
     }
 
     /**
@@ -63,26 +65,22 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     ) external override returns (
         bytes32
     ) {
-        bytes calldata parameters;
+        bytes32 requestId;
 
         if (winnerNumbers == 1) {
-            parameters = "";
+            requestId = callAirnode(
+                callbackSelector,
+                ""
+            );
         } else {
-            parameters = abi.encode(bytes32("1u"), bytes32("size"), winnerNumbers);
+            requestId = callAirnode(
+                callbackSelector,
+                abi.encode(bytes32("1u"), bytes32("size"), winnerNumbers)
+            );
         }
 
-        bytes32 requestId = callAirnode (
-            callbackSelector,
-            parameters
-        );
-
-        DataTypes.WinnerReponse memory initResponse = DataTypes.WinnerReponse(
-            participantNumbers,
-            winnerNumbers,
-            uint256[],
-            false
-        );
-        requestToRaffle[requestId] = initResponse;
+        requestToRaffle[requestId].totalEntries = participantNumbers;
+        requestToRaffle[requestId].totalWinners = winnerNumbers;
 
         emit Events.NewWinnerRequest(
             requestId,
@@ -135,7 +133,6 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
 
         _afterFulfillment(
             requestId,
-            raffleData.endpointIndex,
             airnode
         );
     }

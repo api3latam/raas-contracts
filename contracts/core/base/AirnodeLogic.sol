@@ -81,7 +81,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      */
     function callAirnode (
         bytes4 _functionSelector,
-        bytes calldata parameters
+        bytes memory parameters
     ) internal virtual returns (
         bytes32
     ) {}
@@ -91,7 +91,7 @@ abstract contract AirnodeLogic is RrpRequesterV0 {
      * @dev Pending adding access control.
      *
      * @param _endpointId - The identifier for the airnode endpoint.
-     * @param _endpointSelector - The function selector to point the callback to.
+     * @param _endpointFunction - The function selector to point the callback to.
      */
     function addNewEndpoint (
         bytes32 _endpointId,
