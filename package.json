@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/api3latam/raas-contracts#readme",
   "devDependencies": {
+    "@api3/airnode-abi": "^0.9.2",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.1",

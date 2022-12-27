@@ -26,7 +26,7 @@ contract MockRrpRequesterV0 {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (
-        bytes32
+        bytes32 requestId
     ) {
 
         requestId = keccak256(
@@ -50,8 +50,6 @@ contract MockRrpRequesterV0 {
                 fulfillFunctionId
             )
         );
-
-        return requestId;
     }
 
     function fulfill (
@@ -59,10 +57,10 @@ contract MockRrpRequesterV0 {
         address airnode,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
-        bytes calldata data,
-    ) external override returns (
-        bool,
-        bytes memory
+        bytes calldata data
+    ) external returns (
+        bool callSuccess,
+        bytes memory callData
     ) {
         require(
             keccak256(
@@ -84,17 +82,14 @@ contract MockRrpRequesterV0 {
                 data
             )
         );
-        
-        return callSuccess, callData;
     }
 
     function fail (
         bytes32 requestId,
         address airnode,
         address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        string calldata errorMessage
-    ) external override {
+        bytes4 fulfillFunctionId
+    ) external {
         require(
             keccak256(
                 abi.encodePacked(
