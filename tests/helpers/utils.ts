@@ -1,9 +1,19 @@
 import { BigNumber } from 'ethers';
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils';
+import { keccak256, 
+  toUtf8Bytes, hexDataSlice } from 'ethers/lib/utils';
 import { TransactionReceipt } from '@ethersproject/providers';
 import type { Events } from '../../typechain';
 
-
+/**
+ * Checks wether a transaction emitted a desired event or not.
+ * 
+ * @param receipt The receipt from the transaction that originates the event.
+ * @param name The name of the event looking for.
+ * @param eventContract The event library contract.
+ * @param expectedArgs An optional list of expected arguments emitted by the event.
+ * @param emitterAddress An optional field to pass down the address from the emitter contract.
+ * @returns An empty value. It's just helpful for ending/breaking the function flow.
+ */
 export async function matchEvent (
     receipt: TransactionReceipt,
     name: string,
@@ -103,3 +113,24 @@ export async function matchEvent (
       throw Error('No events were emitted!\n');
     }
   }
+
+/**
+ * Creates a Solidity `bytes4` selector from a function string selector.
+ * It's useful when working with airnode related contracts.
+ * 
+ * @param functionSelector The full function selector as string.
+ * @returns A string representing the function selector in `bytes4` format.
+ */
+export function getBytesSelector (
+  functionSelector: string
+) {
+  return hexDataSlice(
+    keccak256(
+      toUtf8Bytes(
+        functionSelector
+      )
+    ),
+    0,
+    4
+  )
+}
