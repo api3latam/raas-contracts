@@ -1,11 +1,13 @@
 import { BigNumber } from 'ethers';
 import { keccak256, 
   toUtf8Bytes, hexDataSlice } from 'ethers/lib/utils';
+import hre from 'hardhat';
 import { TransactionReceipt } from '@ethersproject/providers';
 import type { Events } from '../../typechain';
 
 /**
  * Checks wether a transaction emitted a desired event or not.
+ * NOTE: This function was taken from lens-protocol/core repo.
  * 
  * @param receipt The receipt from the transaction that originates the event.
  * @param name The name of the event looking for.
