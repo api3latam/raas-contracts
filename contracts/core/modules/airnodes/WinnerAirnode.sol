@@ -140,7 +140,7 @@ contract WinnerAirnode is AirnodeLogic, IWinnerAirnode {
     /**
      * @dev See { IWinnerAirnode-requestResults }
      */
-    function requestResults(
+    function requestResults (
         bytes32 requestId
     ) external override returns (
         DataTypes.WinnerReponse memory

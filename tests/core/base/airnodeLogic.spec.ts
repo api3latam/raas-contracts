@@ -1,12 +1,22 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getAccounts, 
     getEventsLibrary } from "../../helpers/fixtures";
 import { MockAirnodeLogic__factory,
-    MockAirnodeRrpV0__factory } from "../../../typechain";
+    MockAirnodeRrpV0__factory,
+    Events, AirnodeLogic } from "../../../typechain";
 import { shouldBehaveLikeAirnodeLogic } from "./airnodeLogic.behavior";
 
-describe("AirnodeLogic Tests", async() => {
-    it("Should behave like an AirnodeLogic contract", async() => {
+export interface setupFunction {
+    airnodeLogic: AirnodeLogic,
+    eventsLib: Events,
+    mock: SignerWithAddress,
+    sponsor: SignerWithAddress,
+    derived: SignerWithAddress
+}
+
+describe("AirnodeLogic Tests", () => {
+    async function setupFunction(): Promise<setupFunction> {
         const { 
             deployer, 
             user: mock,
@@ -20,14 +30,14 @@ describe("AirnodeLogic Tests", async() => {
             airnodeRrp.address
         );
 
-        await shouldBehaveLikeAirnodeLogic(
-            airnodeLogic,
-            eventsLib,
-            {
-                mock,
-                sponsor,
-                derived
-            }
-        );
+        return { airnodeLogic, eventsLib, 
+            mock, sponsor, derived }
+    }
+    describe("Behavior Tests", async () => {
+        context("ShouldBehaveLikeAirnodeLogic", async () => {
+            await shouldBehaveLikeAirnodeLogic(
+                setupFunction
+            );
+        });
     });
-});
+})
