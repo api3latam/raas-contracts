@@ -1,6 +1,10 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { Events__factory } from "../../typechain";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Events__factory, 
+    Events, AirnodeLogic,
+    MockAirnodeLogic__factory,
+    MockAirnodeRrpV0__factory } from "../../typechain";
 
 /**
  * Fixture to get accounts from hardhat network.
@@ -22,4 +26,34 @@ export async function getAccounts() {
 export async function getEventsLibrary() {
     const { deployer } = await loadFixture(getAccounts)
     return await new Events__factory(deployer).deploy();
+}
+
+export interface airnodeSetupFixture {
+    airnodeLogic: AirnodeLogic,
+    eventsLib: Events,
+    rrpAddress: string,
+    deployer: SignerWithAddress,
+    mock: SignerWithAddress,
+    sponsor: SignerWithAddress,
+    derived: SignerWithAddress
+}
+
+export async function airnodeLogicSetup (
+): Promise<airnodeSetupFixture> {
+    const { 
+        deployer, 
+        user: mock,
+        external: sponsor,
+        extra: derived } = await loadFixture(getAccounts);
+    const eventsLib = await loadFixture(getEventsLibrary);
+
+    const airnodeRrp = await new MockAirnodeRrpV0__factory(deployer).deploy();
+    const airnodeLogic = await new MockAirnodeLogic__factory(deployer
+        ).deploy(
+        airnodeRrp.address
+    );
+
+    return { airnodeLogic, eventsLib, 
+        rrpAddress: airnodeRrp.address,
+        deployer, mock, sponsor, derived }
 }
