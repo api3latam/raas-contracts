@@ -3,7 +3,7 @@ import { expect } from "chai";
 // import { ethers } from "hardhat";
 import { deriveEndpointId } from "@api3/airnode-admin";
 import { matchEvent, getBytesSelector } from "../../helpers/utils";
-import { setupFunction } from "./airnodeLogic.spec";
+import { airnodeSetupFixture } from "../../helpers/fixtures";
 
 // Pending to add base tests from `RrpRequesterV0` parent contract.
 
@@ -12,7 +12,7 @@ export async function shouldBehaveLikeAirnodeLogic(
 ) {
     it("requestParameters", async() => {
         const { airnodeLogic, eventsLib, 
-            mock, sponsor, derived }: setupFunction = await loadFixture(fixtureSetup);
+            mock, sponsor, derived }: airnodeSetupFixture = await loadFixture(fixtureSetup);
 
         const receiptRequestParam = await (await airnodeLogic.setRequestParameters(
             mock.address,
@@ -34,7 +34,7 @@ export async function shouldBehaveLikeAirnodeLogic(
     });
 
     it("addNewEndpoint", async() => {
-        const { airnodeLogic, eventsLib }: setupFunction = 
+        const { airnodeLogic, eventsLib }: airnodeSetupFixture = 
             await loadFixture(fixtureSetup);
 
         const testId = await deriveEndpointId("airnodeLogic", "testFunction");
