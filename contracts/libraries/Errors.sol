@@ -11,21 +11,39 @@ pragma solidity ^0.8.15;
  */
 library Errors {
 
-    // Core Errors
-    error SameValueProvided();
-    error AlreadyInitialized();
-    error WrongInitializationParams(string errorMessage);
+    // ========== Core Errors ==========
+    error SameValueProvided ();
+    error AlreadyInitialized ();
+    error InvalidProxyAddress (
+        address _proxy
+    );
+    error WrongInitializationParams (
+        string errorMessage
+    );
+    error RaffleNotOpen ();             // Raffle
+    error RaffleNotAvailable ();        // Raffle
+    error RaffleNotClose ();            // Raffle
 
-    // Raffle Errors
-    error RaffleNotOpen();
-    error RaffleNotAvailable();
-    error RaffleNotClose();
+    // ========== Base Errors ==========
+    error CallerNotOwner (               // Ownable ERC721
+        address caller
+    );
+    error RequestIdNotKnown ();          // AirnodeLogic
+    error InvalidEndpointId ();          // AirnodeLogic
+    error IncorrectCallback ();          // AirnodeLogic
 
-    // Airnode Module
-    error RequestIdNotKnown();
-    error InvalidEndpointId();
-    error IncorrectCallback();
-    error InvalidWinnerNumber();    // WinnerAirnode
-    error ResultRetrieved();        // WinnerAirnode
+    // ========== Airnode Module Errors ==========
+    error InvalidWinnerNumber ();        // WinnerAirnode
+    error ResultRetrieved ();            // WinnerAirnode
+
+    // ========== Vault Module Errors ==========
+    error VaultWithdrawsDisabled ();     // AssetVault
+    error VaultWithdrawsEnabled ();      // AssetVault
+    error TokenIdOutOfBounds (           // VaultFactory
+        uint256 tokenId
+    );
+    error NoTransferWithdrawEnabled (    // VaultFactory
+        uint256 tokenId
+    );
 
 }
