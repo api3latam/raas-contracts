@@ -12,6 +12,8 @@ import { DataTypes } from "./DataTypes.sol";
  * Raffle Platform.
  */
 library Events {
+
+    // ========== Core Events ==========
     /**
      * @dev Emitted when a Raffle is created.
      * 
@@ -31,7 +33,8 @@ library Events {
         uint256 indexed _raffleId,
         address[] raffleWinners
     );
-    
+
+        // ========== Base Events ==========
     /**
      * @dev Emitted when we set the parameters for the airnode.
      *
@@ -59,6 +62,7 @@ library Events {
         bytes4 _newEndpointSelector
     );
 
+    // ========== Airnode Module Events ==========
     /**
      * @dev Should be emitted when a request to WinnerAirnode is done.
      *
@@ -80,5 +84,29 @@ library Events {
     event SuccessfulRequest (
         bytes32 indexed requestId,
         address indexed airnodeAddress
+    );
+
+    // ========== Vault Module Events ==========
+    /**
+     * @dev Should be emitted when withdrawals are enabled on a vault.
+     *
+     * @param emitter The address of the vault owner.
+     */
+    event WithdrawEnabled (
+        address emitter
+    );
+    
+    /**
+     * @dev Should be emitted when the balance of ERC721s is withdraw
+     * from a vault.
+     *
+     * @param emitter The address of the vault owner.
+     * @param recipient The end user to recieve the assets.
+     * @param assetsContracts The addresses of the assets being transfered.
+     */
+    event WithdrawERC721 (
+        address indexed emitter,
+        address indexed recipient,
+        address[] assetsContracts
     );
 }
