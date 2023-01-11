@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { keccak256, 
-  toUtf8Bytes, hexDataSlice } from 'ethers/lib/utils';
-import hre from 'hardhat';
+  toUtf8Bytes, hexDataSlice,
+  AbiCoder } from 'ethers/lib/utils';
 import { TransactionReceipt } from '@ethersproject/providers';
 import type { Events } from '../../typechain';
 
@@ -135,4 +135,41 @@ export function getBytesSelector (
     0,
     4
   )
+}
+
+/**
+ * Looks trough a TransactionReceipt for an emitted value out from a topic name
+ * and a set of position indexes defined in the solidity contract.
+ * 
+ * @param txReceipt The target transaction.
+ * @param eventsLib The Events library for the package.
+ * @param eventName The target event name.
+ * @param targetArgIndex The positional index of the argument.
+ * @returns Any sort of raw value from the parsed events.
+ */
+export function getEmittedArgument(
+  txReceipt: TransactionReceipt,
+  eventsLib: Events,
+  eventName: string,
+  targetArgIndex: number
+) {
+  try {
+    const topicHash = eventsLib.interface.getEventTopic(
+      eventName
+    );
+
+    const output = txReceipt.logs.map(log => {
+      if (log.topics[0] === topicHash) {
+        let rawData = eventsLib.interface.parseLog(
+          log
+        );
+        return rawData.args[targetArgIndex];
+      }
+    });
+
+    return output;
+    
+  } catch (err) {
+    console.error(err)
+  }
 }
